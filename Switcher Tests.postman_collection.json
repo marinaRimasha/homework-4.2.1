@@ -1,0 +1,1253 @@
+{
+	"info": {
+		"_postman_id": "68147316-cddf-4788-bc9c-79ce22cd1954",
+		"name": "Switcher Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13872782"
+	},
+	"item": [
+		{
+			"name": "Login as admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let responseJson = pm.response.json();",
+							"const adminToken = responseJson.id_token;",
+							"pm.collectionVariables.set(\"adminToken\", adminToken);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"admin_automation\", \"password\": \"admin_automation\", \"rememberMe\": false}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}authenticate",
+					"host": [
+						"{{baseURL}}authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login as teacher",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"{{teacheruser}}\", \"password\": \"{{password}}\", \"rememberMe\": false}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}authenticate",
+					"host": [
+						"{{baseURL}}authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login as student",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"{{studentuser}}\", \"password\": \"{{password}}\", \"rememberMe\": false}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}authenticate",
+					"host": [
+						"{{baseURL}}authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"{{newName}}\", \"email\": \"somecoolmail@mail.lv\", \"password\": \"passwordtest\", \"langKey\": \"en\"}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}register",
+					"host": [
+						"{{baseURL}}register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user invalid - no login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"    let responseJson = pm.response.json();",
+							"  // Проверка, что сообщение об ошибке содержит ожидаемые значения",
+							"    pm.test(\"Response contains fieldErrors\", function () {",
+							"    pm.expect(responseJson.fieldErrors).to.be.an('array').that.is.not.empty;",
+							"",
+							"    // Найти ошибку валидации для поля \"login\"",
+							"    let loginErrors = responseJson.fieldErrors.filter(error => error.field === \"login\");",
+							"",
+							"    pm.expect(loginErrors).to.have.lengthOf.at.least(1);",
+							"    ",
+							"    // Проверка конкретных сообщений об ошибках для поля \"login\"",
+							"    let expectedLoginMessages = [",
+							"        \"size must be between 1 and 50\",",
+							"        \"must match \\\"^(?>[a-zA-Z0-9!$&*+=?^_`{|}~.-]+@[a-zA-Z0-9-]+(?:\\\\.[a-zA-Z0-9-]+)*)|(?>[_.@A-Za-z0-9-]+)$\\\"\",",
+							"        \"must not be blank\"",
+							"    ];",
+							"    expectedLoginMessages.forEach(expectedMessage => {",
+							"        let messageFound = loginErrors.some(error => error.message === expectedMessage);",
+							"        pm.expect(messageFound).to.be.true;",
+							"    });",
+							"});",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"\", \"email\": \"est@mail.com\", \"password\": \"fullpassword016\", \"langKey\": \"en\"}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}register",
+					"host": [
+						"{{baseURL}}register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user invalid - invalid email format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"    let responseJson = pm.response.json();",
+							"  // Проверка, что сообщение об ошибке содержит ожидаемые значения",
+							"    pm.test(\"Response contains fieldErrors\", function () {",
+							"    pm.expect(responseJson.fieldErrors).to.be.an('array').that.is.not.empty;",
+							"",
+							"    // Найти ошибку валидации для поля \"email\"",
+							"    let emailErrors = responseJson.fieldErrors.filter(error => error.field === \"email\");",
+							" ",
+							"    pm.expect(emailErrors).to.have.lengthOf.at.least(1);",
+							"    ",
+							"    // Проверка конкретных сообщений об ошибках для поля \"email\"",
+							"",
+							"    let expectedEmailMessages = [",
+							"        \"size must be between 5 and 254\",",
+							"        \"must be a well-formed email address\"",
+							"    ];",
+							"",
+							"    expectedEmailMessages.forEach(expectedMessage => {",
+							"        let messageFound = emailErrors.some(error => error.message === expectedMessage);",
+							"        pm.expect(messageFound).to.be.true;",
+							"    });",
+							"});",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"somenewuserMR\", \"email\": \"est\", \"password\": \"fullpassword016\", \"langKey\": \"en\"}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}register",
+					"host": [
+						"{{baseURL}}register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user invalid - empty password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"    let responseJson = pm.response.json();",
+							"  // Проверка, что сообщение об ошибке содержит ожидаемые значения",
+							"    pm.test(\"Response contains fieldErrors\", function () {",
+							"    pm.expect(responseJson.fieldErrors).to.be.an('array').that.is.not.empty;",
+							"",
+							"    // Найти ошибку валидации для поля \"email\"",
+							"    let passwordErrors = responseJson.fieldErrors.filter(error => error.field === \"password\");",
+							" ",
+							"    pm.expect(passwordErrors).to.have.lengthOf.at.least(1);",
+							"    ",
+							"    // Проверка конкретных сообщений об ошибках для поля \"email\"",
+							"",
+							"    let expectedPasswordMessages = [",
+							"     \"size must be between 4 and 100\"",
+							"    ];",
+							"",
+							"    expectedPasswordMessages.forEach(expectedMessage => {",
+							"        let messageFound = passwordErrors.some(error => error.message === expectedMessage);",
+							"        pm.expect(messageFound).to.be.true;",
+							"    });",
+							"});",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"login\": \"somenewuserMR\", \"email\": \"test@testtt.com\", \"password\": \"\", \"langKey\": \"en\"}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}register",
+					"host": [
+						"{{baseURL}}register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login as newly created user (not activated yet)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 500\", function () {",
+							"    pm.response.to.have.status(500);",
+							"    name = pm.variables.get(\"newName\");",
+							"        pm.test(\"Body matches string\", function () {",
+							"            pm.expect(pm.response.text()).to.include(`User ${name} was not activated`);",
+							"        });",
+							"     ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"{{newName}}\", \"password\": \"troublespass\", \"rememberMe\": false}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}authenticate",
+					"host": [
+						"{{baseURL}}authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with wrong password",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"        pm.test(\"Body matches string\", function () {",
+							"            pm.expect(pm.response.text()).to.include(`Bad credentials`);",
+							"        });",
+							"     ",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"{{userName}}\", \"password\": \"wrongpass\", \"rememberMe\": false}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}authenticate",
+					"host": [
+						"{{baseURL}}authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login with empty login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"    let responseJson = pm.response.json();",
+							"",
+							"",
+							"    // Найти ошибку валидации для поля \"login\"",
+							"    let userNameErrors = responseJson.fieldErrors.filter(error => error.field === \"username\");",
+							"",
+							"    pm.expect(userNameErrors).to.have.lengthOf.at.least(1);",
+							"    ",
+							"    // Проверка конкретных сообщений об ошибках для поля \"login\"",
+							"    let expectedusernameMessages = [",
+							"        \"size must be between 1 and 50\"",
+							"    ];",
+							"    expectedusernameMessages.forEach(expectedMessage => {",
+							"        let messageFound = userNameErrors.some(error => error.message === expectedMessage);",
+							"        pm.expect(messageFound).to.be.true;",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"\", \"password\": \"passwordtesst\", \"rememberMe\": false}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}authenticate",
+					"host": [
+						"{{baseURL}}authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    username = pm.variables.get(\"userName\");",
+							"",
+							"    let responseJson = pm.response.json();",
+							"    pm.response.to.have.status(200);",
+							"        name = pm.variables.get(\"userName\");",
+							"       pm.test(\"Login is marinke\", function () {",
+							"    pm.expect(responseJson.login).to.eql(`${username}`);",
+							"});",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}admin/users/{{userName}}",
+					"host": [
+						"{{baseURL}}admin"
+					],
+					"path": [
+						"users",
+						"{{userName}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Activate user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbl9hdXRvbWF0aW9uIiwiZXhwIjoxNzE3MTM3MDgxLCJhdXRoIjoiUk9MRV9BRE1JTiIsImlhdCI6MTcxNzA1MDY4MX0.pHc4GAlavyWMKfKTLXr4McjFRrrJEBkRgzmldlKu3cqxFKw81Y43-XIJWe0JffVUgVSxNwALllRy5EvoMqm9mA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 90605,\n    \"login\": \"marinke\",\n    \"firstName\": null,\n    \"lastName\": null,\n    \"email\": \"marinkemail@mail.lv\",\n    \"imageUrl\": null,\n    \"activated\": true,\n    \"langKey\": \"en\",\n    \"createdBy\": \"anonymousUser\",\n    \"createdDate\": \"2024-06-11T19:21:38.732314Z\",\n    \"lastModifiedBy\": \"anonymousUser\",\n    \"lastModifiedDate\": \"2024-06-11T19:21:38.732314Z\",\n    \"authorities\": [\n        \"ROLE_USER_STUDENT\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}admin/users",
+					"host": [
+						"{{baseURL}}admin"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deactivate user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": 44124,\n    \"login\": \"{{userName}}\",\n    \"firstName\": null,\n    \"lastName\": null,\n    \"email\": \"yegehep861@bub.com\",\n    \"imageUrl\": null,\n    \"activated\": false,\n    \"langKey\": \"en\",\n    \"createdBy\": \"anonymousUser\",\n    \"createdDate\": \"2024-05-29T19:00:04.165008Z\",\n    \"lastModifiedBy\": \"admin_automation\",\n    \"lastModifiedDate\": \"2024-05-29T20:03:27.565104Z\",\n    \"authorities\": [\n        \"ROLE_USER_STUDENT\"\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}admin/users",
+					"host": [
+						"{{baseURL}}admin"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    title = pm.variables.get(\"myTaskTitle\");",
+							"",
+							"    let responseJson = pm.response.json();",
+							"    pm.response.to.have.status(200);",
+							"        name = pm.variables.get(\"title\");",
+							"       pm.test(`Title is ${title}`, function () {",
+							"    pm.expect(responseJson.title).to.eql(`${title}`);",
+							"});",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":\"57360\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{taskURL}}tasks/{{myTask}}",
+					"host": [
+						"{{taskURL}}tasks"
+					],
+					"path": [
+						"{{myTask}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    title = pm.variables.get(\"myTaskTitle\");",
+							"",
+							"    let responseJson = pm.response.json();",
+							"    pm.response.to.have.status(201);",
+							"    const new_task_id = responseJson.id;",
+							"    pm.collectionVariables.set(\"newTaskId\", new_task_id);",
+							"    const new_task_text = responseJson.text;",
+							"    pm.collectionVariables.set(\"newTaskText\", new_task_text);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"{{$randomLoremSentence}}\",\"answer\":\"{{$randomWords}}\",\"title\":\"{{$randomLoremWord}}\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{taskURL}}tasks",
+					"host": [
+						"{{taskURL}}tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get newly created task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    id = pm.variables.get(\"newTaskId\");",
+							"    let responseJson = pm.response.json();",
+							"    pm.response.to.have.status(200);",
+							"        name = pm.variables.get(\"id\");",
+							"       pm.test(`Task ID is ${id}`, function () {",
+							"    pm.expect(responseJson.id).to.equal(id);",
+							"});",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\":\"57360\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{taskURL}}tasks/{{newTaskId}}",
+					"host": [
+						"{{taskURL}}tasks"
+					],
+					"path": [
+						"{{newTaskId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new task - empty mandatory",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"\",\"answer\":\"\",\"title\":\"\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{taskURL}}tasks",
+					"host": [
+						"{{taskURL}}tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Remove existing task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    id = pm.variables.get(\"newTaskId\");",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{taskURL}}tasks/{{newTaskId}}",
+					"host": [
+						"{{taskURL}}tasks"
+					],
+					"path": [
+						"{{newTaskId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Verify task doesn't exist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {",
+							"    pm.response.to.have.status(404);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{taskURL}}tasks/{{newTaskId}}",
+					"host": [
+						"{{taskURL}}tasks"
+					],
+					"path": [
+						"{{newTaskId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new User Task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {  ",
+							"    userlogin = pm.variables.get(\"userlogin\"); ",
+							"    let responseJson = pm.response.json();",
+							"    pm.response.to.have.status(201);",
+							"    user = responseJson.user.login;",
+							"    pm.test(`Login is ${userlogin}`, function () {",
+							"    pm.expect(user).to.eql(`${userlogin}`);",
+							"    });",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Generate a timestamp",
+							"let timestamp = new Date().getTime().toPrecision(6);",
+							"",
+							"// Set the timestamp as an environment variable",
+							"pm.environment.set(\"timestamp\", timestamp);",
+							"",
+							"// Optionally, log the timestamp to the console",
+							"console.log(\"Generated timestamp:\", timestamp);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{adminToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isSolved\": true,\n    \"user\": {\n        \"id\": 90601,\n        \"login\": \"marinkarimrim\"\n    },\n    \"task\": {\n        \"id\": 57353,\n        \"text\": \"marinkarimrim task\",\n        \"answer\": \"task for me\",\n        \"title\": \"marinka\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}user-tasks",
+					"host": [
+						"{{baseURL}}user-tasks"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "userName",
+			"value": "marinke"
+		},
+		{
+			"key": "newName",
+			"value": "apasnastj"
+		},
+		{
+			"key": "baseURL",
+			"value": ""
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "taskURL",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "myTask",
+			"value": ""
+		},
+		{
+			"key": "myTaskTitle",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "newTaskId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "newTaskText",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userlogin",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
